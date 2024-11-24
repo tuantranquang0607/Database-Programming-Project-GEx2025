@@ -4,6 +4,8 @@ namespace GamesCollectionManagment
 {
     public partial class frmLogin : Form
     {
+        public string LoggedInUsername { get; private set; }
+
         public frmLogin()
         {
             InitializeComponent();
@@ -68,25 +70,24 @@ namespace GamesCollectionManagment
         {
             try
             {
-                // Validate inputs
                 if (!ValidateInputs())
                 {
-                    return; // Stop execution if validation fails
+                    return; 
                 }
 
-                // Query to check for valid user credentials
-                string sql = $"SELECT * FROM Users WHERE UserName = '{txtUser.Text.Trim()}' AND Password = '{txtPassword.Text.Trim()}'";
+                string username = txtUser.Text.Trim();
+                string password = txtPassword.Text.Trim();
+
+                string sql = $"SELECT * FROM Users WHERE UserName = '{username}' AND Password = '{password}'";
                 DataTable dt = DataAccess.GetData(sql);
 
                 if (dt.Rows.Count > 0)
                 {
-                    // Successful login
-                    MessageBox.Show("Login successful!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    DialogResult = DialogResult.OK;
+                    LoggedInUsername = username; 
+                    DialogResult = DialogResult.OK; 
                 }
                 else
                 {
-                    // Failed login
                     errorProvider.SetError(txtUser, "Invalid username or password.");
                     errorProvider.SetError(txtPassword, "Invalid username or password.");
                 }
@@ -142,9 +143,6 @@ namespace GamesCollectionManagment
         {
             try
             {
-                // Notify the user and exit the application
-                MessageBox.Show("User cancelled the login.", "Login Cancelled", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                // Terminate the application
                 Application.Exit();
             }
             catch (Exception ex)

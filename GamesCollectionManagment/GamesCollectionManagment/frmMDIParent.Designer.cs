@@ -28,54 +28,58 @@
         /// </summary>
         private void InitializeComponent()
         {
-            button1 = new Button();
-            button2 = new Button();
-            button3 = new Button();
-            button4 = new Button();
+            btnUserOwnedGames = new Button();
+            btnUserWishlist = new Button();
+            btnGameManagment = new Button();
+            btnLogin = new Button();
             statusStrip1 = new StatusStrip();
-            toolStripStatusLabel1 = new ToolStripStatusLabel();
+            toolStripStatusLabel = new ToolStripStatusLabel();
             statusStrip1.SuspendLayout();
             SuspendLayout();
             // 
-            // button1
+            // btnUserOwnedGames
             // 
-            button1.Location = new Point(12, 12);
-            button1.Name = "button1";
-            button1.Size = new Size(281, 82);
-            button1.TabIndex = 2;
-            button1.Text = "button1";
-            button1.UseVisualStyleBackColor = true;
+            btnUserOwnedGames.Location = new Point(12, 12);
+            btnUserOwnedGames.Name = "btnUserOwnedGames";
+            btnUserOwnedGames.Size = new Size(281, 82);
+            btnUserOwnedGames.TabIndex = 2;
+            btnUserOwnedGames.Text = "Your Games";
+            btnUserOwnedGames.UseVisualStyleBackColor = true;
+            btnUserOwnedGames.Click += btnUserOwnedGames_Click;
             // 
-            // button2
+            // btnUserWishlist
             // 
-            button2.Location = new Point(12, 100);
-            button2.Name = "button2";
-            button2.Size = new Size(281, 82);
-            button2.TabIndex = 3;
-            button2.Text = "button2";
-            button2.UseVisualStyleBackColor = true;
+            btnUserWishlist.Location = new Point(12, 100);
+            btnUserWishlist.Name = "btnUserWishlist";
+            btnUserWishlist.Size = new Size(281, 82);
+            btnUserWishlist.TabIndex = 3;
+            btnUserWishlist.Text = "Wishlist";
+            btnUserWishlist.UseVisualStyleBackColor = true;
+            btnUserWishlist.Click += btnUserWishlist_Click;
             // 
-            // button3
+            // btnGameManagment
             // 
-            button3.Location = new Point(14, 188);
-            button3.Name = "button3";
-            button3.Size = new Size(281, 82);
-            button3.TabIndex = 4;
-            button3.Text = "button3";
-            button3.UseVisualStyleBackColor = true;
+            btnGameManagment.Location = new Point(14, 188);
+            btnGameManagment.Name = "btnGameManagment";
+            btnGameManagment.Size = new Size(281, 82);
+            btnGameManagment.TabIndex = 4;
+            btnGameManagment.Text = "Game Managment";
+            btnGameManagment.UseVisualStyleBackColor = true;
+            btnGameManagment.Click += btnGameManagment_Click;
             // 
-            // button4
+            // btnLogin
             // 
-            button4.Location = new Point(12, 276);
-            button4.Name = "button4";
-            button4.Size = new Size(281, 82);
-            button4.TabIndex = 5;
-            button4.Text = "button4";
-            button4.UseVisualStyleBackColor = true;
+            btnLogin.Location = new Point(12, 276);
+            btnLogin.Name = "btnLogin";
+            btnLogin.Size = new Size(281, 82);
+            btnLogin.TabIndex = 5;
+            btnLogin.Text = "LOG OUT";
+            btnLogin.UseVisualStyleBackColor = true;
+            btnLogin.Click += btnLogin_Click;
             // 
             // statusStrip1
             // 
-            statusStrip1.Items.AddRange(new ToolStripItem[] { toolStripStatusLabel1 });
+            statusStrip1.Items.AddRange(new ToolStripItem[] { toolStripStatusLabel });
             statusStrip1.Location = new Point(0, 369);
             statusStrip1.Name = "statusStrip1";
             statusStrip1.Size = new Size(307, 22);
@@ -83,14 +87,14 @@
             statusStrip1.TabIndex = 6;
             statusStrip1.Text = "statusStrip1";
             // 
-            // toolStripStatusLabel1
+            // toolStripStatusLabel
             // 
-            toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            toolStripStatusLabel1.RightToLeft = RightToLeft.No;
-            toolStripStatusLabel1.Size = new Size(261, 17);
-            toolStripStatusLabel1.Spring = true;
-            toolStripStatusLabel1.Text = "toolStripStatusLabel1";
-            toolStripStatusLabel1.TextAlign = ContentAlignment.BottomCenter;
+            toolStripStatusLabel.Name = "toolStripStatusLabel";
+            toolStripStatusLabel.RightToLeft = RightToLeft.No;
+            toolStripStatusLabel.Size = new Size(261, 17);
+            toolStripStatusLabel.Spring = true;
+            toolStripStatusLabel.Text = "toolStripStatusLabel";
+            toolStripStatusLabel.TextAlign = ContentAlignment.BottomCenter;
             // 
             // frmMDIParent
             // 
@@ -98,10 +102,10 @@
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(307, 391);
             Controls.Add(statusStrip1);
-            Controls.Add(button4);
-            Controls.Add(button3);
-            Controls.Add(button2);
-            Controls.Add(button1);
+            Controls.Add(btnLogin);
+            Controls.Add(btnGameManagment);
+            Controls.Add(btnUserWishlist);
+            Controls.Add(btnUserOwnedGames);
             IsMdiContainer = true;
             Margin = new Padding(4, 3, 4, 3);
             Name = "frmMDIParent";
@@ -116,12 +120,12 @@
 
         #endregion
 
-        private Button button1;
-        private Button button2;
-        private Button button3;
-        private Button button4;
+        private Button btnUserOwnedGames;
+        private Button btnUserWishlist;
+        private Button btnGameManagment;
+        private Button btnLogin;
         private StatusStrip statusStrip1;
-        private ToolStripStatusLabel toolStripStatusLabel1;
+        private ToolStripStatusLabel toolStripStatusLabel;
     }
 }
 
