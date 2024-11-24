@@ -20,47 +20,6 @@ namespace CollegeTeachingAssignments
             InitializeComponent();
         }
 
-        private void ShowNewForm(object sender, EventArgs e)
-        {
-            Form childForm = null;
-            object tag = ((ToolStripMenuItem)sender).Tag;
-
-            switch (tag.ToString())
-            {
-                case "UserOwnedGames":
-                    childForm = new frmUserOwnedGames();
-                    break;
-
-                case "UserWishlist":
-                    childForm = new frmUserWishlist();
-                    break;
-
-                case "GameManagement":
-                    childForm = new frmGameManagement();
-                    break;
-
-                case "GameSearch":
-                    childForm = new frmGameSearch();
-                    break;
-            }
-
-            if (childForm != null)
-            {
-                foreach (Form f in this.MdiChildren)
-                {
-                    // Determine if the selected form is already intantiated
-                    if (f.GetType() == childForm.GetType())
-                    {
-                        f.Activate();
-                    }
-                }
-            }
-
-            childForm.MdiParent = this;
-            childForm.Show();
-        }
-
-
         private void CloseAllToolStripMenuItem_Click(object sender, EventArgs e)
         {
             foreach (Form childForm in MdiChildren)
@@ -69,27 +28,113 @@ namespace CollegeTeachingAssignments
             }
         }
 
+        public string LoggedInUsername { get; set; }
+
         private void frmMDIParent_Load(object sender, EventArgs e)
         {
-            frmLogin loginForm = new();
-
-            loginForm.StartPosition = FormStartPosition.CenterScreen;
+            frmLogin loginForm = new frmLogin
+            {
+                StartPosition = FormStartPosition.CenterScreen
+            };
 
             DialogResult result = loginForm.ShowDialog();
 
             if (result == DialogResult.Cancel)
             {
-                MessageBox.Show("User cancelled the login");
-                this.Close();
+                Application.Exit();
             }
-            else if (result == DialogResult.OK) 
+            else if (result == DialogResult.OK)
             {
-                MessageBox.Show("You are now authenticated and can use the application.");
+                // Retrieve the logged-in username from the login form
+                LoggedInUsername = loginForm.LoggedInUsername;
+
+                // Display the username in the StatusStrip
+                toolStripStatusLabel.Text = $"Logged in as: {LoggedInUsername}";
             }
-            else if (result == DialogResult.Abort)
+        }
+
+        private void btnUserOwnedGames_Click(object sender, EventArgs e)
+        {
+            try
             {
-                MessageBox.Show("You failed the login. You shall not pass.");
-                this.Close();
+                frmUserOwnedGames userOwnedGamesForm = new frmUserOwnedGames
+                {
+                    StartPosition = FormStartPosition.CenterScreen
+                };
+
+                userOwnedGamesForm.Show();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error opening the User Owned Games form: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void btnUserWishlist_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                frmUserWishlist userWishlistForm = new frmUserWishlist();
+                {
+                    StartPosition = FormStartPosition.CenterScreen;
+                }
+
+                userWishlistForm.Show();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error opening the User Owned Games form: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void btnGameManagment_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                frmGameManagement gameManagmentForm = new frmGameManagement();
+                {
+                    StartPosition = FormStartPosition.CenterScreen;
+                }
+
+                gameManagmentForm.Show();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error opening the User Owned Games form: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void btnLogin_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                LoggedInUsername = null;
+                toolStripStatusLabel.Text = "Logged out";
+
+                this.Hide();
+
+                frmLogin logInForm = new frmLogin
+                {
+                    StartPosition = FormStartPosition.CenterScreen
+                };
+
+                DialogResult result = logInForm.ShowDialog();
+
+                if (result == DialogResult.OK)
+                {
+                    LoggedInUsername = logInForm.LoggedInUsername;
+                    toolStripStatusLabel.Text = $"Logged in as: {LoggedInUsername}";
+
+                    this.Show();
+                }
+                else
+                {
+                    Application.Exit();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error opening the User Owned Games form: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }
