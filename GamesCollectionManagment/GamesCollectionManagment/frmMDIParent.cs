@@ -29,6 +29,7 @@ namespace CollegeTeachingAssignments
         }
 
         public string LoggedInUsername { get; set; }
+        public string LoggedInUserId { get; private set; }
 
         private void frmMDIParent_Load(object sender, EventArgs e)
         {
@@ -45,10 +46,9 @@ namespace CollegeTeachingAssignments
             }
             else if (result == DialogResult.OK)
             {
-                // Retrieve the logged-in username from the login form
                 LoggedInUsername = loginForm.LoggedInUsername;
+                LoggedInUserId = loginForm.LoggedInUserId;
 
-                // Display the username in the StatusStrip
                 toolStripStatusLabel.Text = $"Logged in as: {LoggedInUsername}";
             }
         }
@@ -91,8 +91,9 @@ namespace CollegeTeachingAssignments
         {
             try
             {
-                frmGameManagement gameManagmentForm = new frmGameManagement();
+                frmGameManagment gameManagmentForm = new frmGameManagment();
                 {
+                    LoggedInUserId = this.LoggedInUserId;
                     StartPosition = FormStartPosition.CenterScreen;
                 }
 
