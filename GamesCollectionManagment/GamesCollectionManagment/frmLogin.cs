@@ -5,6 +5,7 @@ namespace GamesCollectionManagment
     public partial class frmLogin : Form
     {
         public string LoggedInUsername { get; private set; }
+        public string LoggedInUserId { get; private set; }
 
         public frmLogin()
         {
@@ -83,6 +84,7 @@ namespace GamesCollectionManagment
 
                 if (dt.Rows.Count > 0)
                 {
+                    LoggedInUserId = dt.Rows[0]["UserId"].ToString();
                     LoggedInUsername = username; 
                     DialogResult = DialogResult.OK; 
                 }
