@@ -49,7 +49,6 @@
             lblProduct.TabIndex = 0;
             lblProduct.Text = "Video Games Managament";
             lblProduct.TextAlign = ContentAlignment.TopCenter;
-            lblProduct.Click += lblProduct_Click;
             // 
             // lblVersion
             // 
@@ -64,7 +63,6 @@
             lblVersion.TabIndex = 1;
             lblVersion.Text = "Version: 1.0.0.0";
             lblVersion.TextAlign = ContentAlignment.BottomCenter;
-            lblVersion.Click += lblVersion_Click;
             // 
             // prgProgress
             // 

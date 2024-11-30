@@ -59,7 +59,6 @@
             label7.Size = new Size(725, 32);
             label7.TabIndex = 88;
             label7.Text = "You can only add a game to your Wishlist from Game Managment.";
-            label7.Click += label7_Click;
             // 
             // txtGamePublisher
             // 
@@ -183,6 +182,7 @@
             btnSearch.TabIndex = 75;
             btnSearch.Text = "Search";
             btnSearch.UseVisualStyleBackColor = true;
+            btnSearch.Click += btnSearch_Click;
             // 
             // btnLast
             // 
@@ -194,6 +194,7 @@
             btnLast.TabIndex = 74;
             btnLast.Text = "Last";
             btnLast.UseVisualStyleBackColor = true;
+            btnLast.Click += Navigation_Handler;
             // 
             // btnFirst
             // 
@@ -205,6 +206,7 @@
             btnFirst.TabIndex = 73;
             btnFirst.Text = "First";
             btnFirst.UseVisualStyleBackColor = true;
+            btnFirst.Click += Navigation_Handler;
             // 
             // btnCancel
             // 
@@ -217,6 +219,7 @@
             btnCancel.TabIndex = 72;
             btnCancel.Text = "Cancel";
             btnCancel.UseVisualStyleBackColor = true;
+            btnCancel.Click += btnCancel_Click;
             // 
             // btnDelete
             // 
@@ -229,6 +232,7 @@
             btnDelete.TabIndex = 71;
             btnDelete.Text = "Delete";
             btnDelete.UseVisualStyleBackColor = true;
+            btnDelete.Click += btnSearch_Click;
             // 
             // btnNext
             // 
@@ -240,6 +244,7 @@
             btnNext.TabIndex = 70;
             btnNext.Text = "Next";
             btnNext.UseVisualStyleBackColor = true;
+            btnNext.Click += Navigation_Handler;
             // 
             // btnPrevious
             // 
@@ -251,6 +256,7 @@
             btnPrevious.TabIndex = 69;
             btnPrevious.Text = "Previous";
             btnPrevious.UseVisualStyleBackColor = true;
+            btnPrevious.Click += Navigation_Handler;
             // 
             // frmUserWishlist
             // 
@@ -278,7 +284,8 @@
             Controls.Add(btnNext);
             Controls.Add(btnPrevious);
             Name = "frmUserWishlist";
-            Text = "frmUserWishlist";
+            Text = "Your Wishlist";
+            Load += frmUserWishlist_Load;
             ResumeLayout(false);
             PerformLayout();
         }

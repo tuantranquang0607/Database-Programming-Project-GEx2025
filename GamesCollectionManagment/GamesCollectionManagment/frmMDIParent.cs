@@ -1,5 +1,4 @@
-﻿using GamesCollectionManagment;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -9,11 +8,13 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace CollegeTeachingAssignments
+namespace GamesCollectionManagment
 {
     public partial class frmMDIParent : Form
     {
-        private int childFormNumber = 0;
+        public string LoggedInUsername { get; set; }
+
+        public string LoggedInUserId { get; set; }
 
         public frmMDIParent()
         {
@@ -27,9 +28,6 @@ namespace CollegeTeachingAssignments
                 childForm.Close();
             }
         }
-
-        public string LoggedInUsername { get; set; }
-        public string LoggedInUserId { get; private set; }
 
         private void frmMDIParent_Load(object sender, EventArgs e)
         {
@@ -46,7 +44,7 @@ namespace CollegeTeachingAssignments
             }
             else if (result == DialogResult.OK)
             {
-                LoggedInUsername = loginForm.LoggedInUsername;
+                LoggedInUsername = LoggedInUsername;
                 LoggedInUserId = loginForm.LoggedInUserId;
 
                 toolStripStatusLabel.Text = $"Logged in as: {LoggedInUsername}";
@@ -59,6 +57,7 @@ namespace CollegeTeachingAssignments
             {
                 frmUserOwnedGames userOwnedGamesForm = new frmUserOwnedGames
                 {
+                    LoggedInUserId = this.LoggedInUserId,
                     StartPosition = FormStartPosition.CenterScreen
                 };
 
@@ -76,6 +75,7 @@ namespace CollegeTeachingAssignments
             {
                 frmUserWishlist userWishlistForm = new frmUserWishlist();
                 {
+                    LoggedInUserId = this.LoggedInUserId;
                     StartPosition = FormStartPosition.CenterScreen;
                 }
 
@@ -124,7 +124,7 @@ namespace CollegeTeachingAssignments
                 if (result == DialogResult.OK)
                 {
                     LoggedInUsername = logInForm.LoggedInUsername;
-                    toolStripStatusLabel.Text = $"Logged in as: {LoggedInUsername}";
+                    LoggedInUserId = logInForm.LoggedInUserId;
 
                     this.Show();
                 }

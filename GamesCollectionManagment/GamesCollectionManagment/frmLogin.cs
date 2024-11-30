@@ -4,8 +4,9 @@ namespace GamesCollectionManagment
 {
     public partial class frmLogin : Form
     {
-        public string LoggedInUsername { get; private set; }
-        public string LoggedInUserId { get; private set; }
+        public string LoggedInUsername { get; set; }
+
+        public string LoggedInUserId { get; set; }
 
         public frmLogin()
         {
@@ -17,8 +18,7 @@ namespace GamesCollectionManagment
         {
             try
             {
-                // Set the title of the form
-                this.Text = $"GCM - Login/Register";    // Set the title of the form
+                this.Text = $"GCM - Login/Register";
             }
             catch (Exception ex)
             {
@@ -29,28 +29,24 @@ namespace GamesCollectionManagment
 
         private bool ValidateInputs()
         {
-            // Clear any existing errors
             errorProvider.Clear();
 
             bool hasError = false;
 
-            // Validate Username
             if (string.IsNullOrWhiteSpace(txtUser.Text))
             {
                 errorProvider.SetError(txtUser, "Username is required.");
-                errorProvider.SetIconPadding(txtUser, -20); // Moves the icon below
+                errorProvider.SetIconPadding(txtUser, -20);
                 hasError = true;
             }
 
-            // Validate Password
             if (string.IsNullOrWhiteSpace(txtPassword.Text))
             {
                 errorProvider.SetError(txtPassword, "Password is required.");
-                errorProvider.SetIconPadding(txtPassword, -20); // Moves the icon below
-                hasError = true;
+                errorProvider.SetIconPadding(txtPassword, -20);
             }
 
-            return !hasError; // Return false if there are validation errors
+            return !hasError;
         }
 
 
@@ -58,7 +54,7 @@ namespace GamesCollectionManagment
         {
             try
             {
-                txtPassword.UseSystemPasswordChar = !chkShowPlainText.Checked;  // Toggle password visibility
+                txtPassword.UseSystemPasswordChar = !chkShowPlainText.Checked;
             }
             catch (Exception ex)
             {
@@ -84,7 +80,7 @@ namespace GamesCollectionManagment
 
                 if (dt.Rows.Count > 0)
                 {
-                    LoggedInUserId = dt.Rows[0]["UserId"].ToString();
+                    LoggedInUserId = dt.Rows[0]["UserID"].ToString();
                     LoggedInUsername = username; 
                     DialogResult = DialogResult.OK; 
                 }
@@ -105,17 +101,16 @@ namespace GamesCollectionManagment
         {
             try
             {
-                // Validate inputs
                 if (!ValidateInputs())
                 {
-                    return; // Stop execution if validation fails
+                    return;
                 }
 
                 string username = txtUser.Text.Trim();
                 string password = txtPassword.Text.Trim();
 
-                // Check if the username already exists
                 string checkUserSql = $"SELECT COUNT(*) FROM Users WHERE UserName = '{username}'";
+
                 DataTable userExists = DataAccess.GetData(checkUserSql);
 
                 if (Convert.ToInt32(userExists.Rows[0][0]) > 0)
@@ -124,13 +119,11 @@ namespace GamesCollectionManagment
                     return;
                 }
 
-                // Insert the new user into the User table
                 string insertSql = $"INSERT INTO Users (UserName, Password) VALUES ('{username}', '{password}')";
                 DataAccess.ExecuteNonQuery(insertSql);
 
                 MessageBox.Show("Registration successful! You can now log in.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                // Reset fields after successful registration
                 txtUser.Clear();
                 txtPassword.Clear();
             }

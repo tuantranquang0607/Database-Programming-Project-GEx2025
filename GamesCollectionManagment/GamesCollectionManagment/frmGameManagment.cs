@@ -12,6 +12,8 @@ namespace GamesCollectionManagment
 {
     public partial class frmGameManagment : Form
     {
+        public string LoggedInUserId { get; set; }
+
         public frmGameManagment()
         {
             InitializeComponent();
@@ -21,6 +23,13 @@ namespace GamesCollectionManagment
         {
             try
             {
+                //if (string.IsNullOrEmpty(LoggedInUserId))
+                //{
+                //    MessageBox.Show("User ID not found. Please log in again.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                //    this.Close();
+                //    return;
+                //}
+
                 LoadFirstGame();
             }
             catch (Exception ex)
@@ -93,6 +102,7 @@ namespace GamesCollectionManagment
             btnNext.Enabled = enableState;
             btnPrevious.Enabled = enableState;
         }
+
 
         private void Navigation_Handler(object sender, EventArgs e)
         {
@@ -247,43 +257,137 @@ namespace GamesCollectionManagment
             }
         }
 
-        public string LoggedInUserId { get; set; }
-
-        private void CheckGameStatusInTables(int gameId)
-        {
-            string checkOwnedSql = $@"
-                SELECT COUNT(*) 
-                FROM OwnedGames 
-                WHERE UserId = {LoggedInUserId} AND GameId = {gameId}";
-
-            int ownedCount = Convert.ToInt32(DataAccess.GetValue(checkOwnedSql));
-
-            string checkWishlistSql = $@"
-                SELECT COUNT(*) 
-                FROM UserWishlist 
-                WHERE UserId = {LoggedInUserId} AND GameId = {gameId}";
-
-            int wishlistCount = Convert.ToInt32(DataAccess.GetValue(checkWishlistSql));
-
-            btnAddToOwnedGames.Enabled = (ownedCount == 0);
-            btnAddToWishlist.Enabled = (wishlistCount == 0);
-        }
-
         private void btnAddToOwnedGames_Click(object sender, EventArgs e)
         {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(txtGameTitle.Text))
+                {
+                    MessageBox.Show("Please select a game to add to Owned Games.", "No Game Selected", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
 
+                if (string.IsNullOrWhiteSpace(LoggedInUserId))
+                {
+                    MessageBox.Show("LoggedInUserId is null or empty.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                if (string.IsNullOrWhiteSpace(txtGameId.Text))
+                {
+                    MessageBox.Show("Game ID is null or empty.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                int userId = int.Parse(LoggedInUserId);
+                int gameId = int.Parse(txtGameId.Text.Trim());
+
+                string checkSql = $@"
+                    SELECT COUNT(*) 
+                    FROM UserOwnedGame 
+                    WHERE UserID = {userId} AND Id = {gameId}";
+
+                object result = DataAccess.GetValue(checkSql);
+                if (result == null)
+                {
+                    MessageBox.Show("SQL query returned null.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                int existingRecordCount = Convert.ToInt32(result);
+
+                if (existingRecordCount > 0)
+                {
+                    MessageBox.Show("This game is already in your Owned Games.", "Duplicate Entry", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+
+                string insertSql = $@"
+                    INSERT INTO UserOwnedGame (UserID, Id, GameOwned)
+                    VALUES ({userId}, {gameId}, 1)";
+
+                int rowsAffected = DataAccess.ExecuteNonQuery(insertSql);
+
+                if (rowsAffected > 0)
+                {
+                    MessageBox.Show("Game successfully added to your Owned Games.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                    btnAddToOwnedGames.Enabled = false;
+                }
+                else
+                {
+                    MessageBox.Show("Failed to add the game to your Owned Games.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error adding game to Owned Games: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void btnAddToWishlist_Click(object sender, EventArgs e)
         {
+            if (string.IsNullOrWhiteSpace(txtGameId.Text))
+            {
+                MessageBox.Show("Please select a game to add to the Wishlist.", "No Game Selected", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
 
+            if (string.IsNullOrWhiteSpace(LoggedInUserId))
+            {
+                MessageBox.Show("LoggedInUserId is null or empty. Please log in again.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            int gameId = int.Parse(txtGameId.Text.Trim());
+            int userId = int.Parse(LoggedInUserId);
+
+            string checkSql = $@"
+                SELECT COUNT(*)
+                FROM UserWishlist
+                WHERE UserID = {userId} AND Id = {gameId}";
+
+            object result = DataAccess.GetValue(checkSql);
+            if (result == null)
+            {
+                MessageBox.Show("SQL query returned null.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            int existingRecordCount = Convert.ToInt32(result);
+            if (existingRecordCount > 0)
+            {
+                MessageBox.Show("This game is already in your Wishlist.", "Duplicate Entry", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            string insertSql = $@"
+                INSERT INTO UserWishlist (UserID, Id)
+                VALUES ({userId}, {gameId})";
+
+            int rowsAffected = DataAccess.ExecuteNonQuery(insertSql);
+
+            if (rowsAffected > 0)
+            {
+                MessageBox.Show("Game successfully added to your Wishlist.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                btnAddToWishlist.Enabled = false;
+            }
+            else
+            {
+                MessageBox.Show("Failed to add the game to your Wishlist.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
         }
 
         private void btnAdjust_Click(object sender, EventArgs e)
         {
             try
             {
-                EnableAddMode();
+                txtGameTitle.ReadOnly = false;
+                txtGamePublisher.ReadOnly = false;
+                txtGameReleaseDate.ReadOnly = false;
+                txtGameGenres.ReadOnly = false;
+                txtGamePlatforms.ReadOnly = false;
 
                 btnFirst.Enabled = false;
                 btnLast.Enabled = false;
@@ -297,8 +401,6 @@ namespace GamesCollectionManagment
 
                 if (btnSave.Text == "Save Adjustments")
                 {
-                    
-
                     string gameId = txtGameId.Text.Trim();
                     string gameTitle = txtGameTitle.Text.Trim();
                     string gamePublisher = txtGamePublisher.Text.Trim();
@@ -307,7 +409,7 @@ namespace GamesCollectionManagment
                     string gamePlatforms = txtGamePlatforms.Text.Trim();
 
                     string sql = $@"
-                        UPDATE GameManagement
+                        UPDATE GameManagment
                         SET GameTitle = '{gameTitle}', 
                             GamePublisher = '{gamePublisher}', 
                             GameReleaseDate = '{gameReleaseDate}', 

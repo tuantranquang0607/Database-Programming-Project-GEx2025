@@ -284,7 +284,7 @@
             Controls.Add(btnNext);
             Controls.Add(btnPrevious);
             Name = "frmUserOwnedGames";
-            Text = "frmUserOwnedGames";
+            Text = "Your Games";
             Load += frmUserOwnedGames_Load;
             ResumeLayout(false);
             PerformLayout();

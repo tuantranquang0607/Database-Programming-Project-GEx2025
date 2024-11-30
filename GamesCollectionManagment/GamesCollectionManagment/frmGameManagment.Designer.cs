@@ -315,7 +315,7 @@
             btnAdjust.TabIndex = 45;
             btnAdjust.Text = "Adjust The Information";
             btnAdjust.UseVisualStyleBackColor = true;
-            btnAdjust.Click += this.btnAdjust_Click;
+            btnAdjust.Click += btnAdjust_Click;
             // 
             // frmGameManagment
             // 
@@ -347,7 +347,7 @@
             Controls.Add(btnNext);
             Controls.Add(btnPrevious);
             Name = "frmGameManagment";
-            Text = "frmGameManagment";
+            Text = "Game Managment";
             Load += frmGameManagment_Load;
             ((System.ComponentModel.ISupportInitialize)errorProvider).EndInit();
             ResumeLayout(false);

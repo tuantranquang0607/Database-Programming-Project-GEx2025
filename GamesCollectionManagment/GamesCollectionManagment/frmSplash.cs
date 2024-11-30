@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GamesCollectionManagment;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -17,7 +18,7 @@ namespace CollegeTeachingAssignments
             InitializeComponent();
         }
 
-        frmMDIParent frm = new();
+        frmLogin frm = new();
 
         private void frmSplash_Load(object sender, EventArgs e)
         {
@@ -48,16 +49,6 @@ namespace CollegeTeachingAssignments
         private void frmClose(object? sender, FormClosedEventArgs e)
         {
             this.Close();
-        }
-
-        private void lblVersion_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void lblProduct_Click(object sender, EventArgs e)
-        {
-
         }
     }
 }
