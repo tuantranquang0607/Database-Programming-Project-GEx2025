@@ -22,33 +22,53 @@ namespace CollegeTeachingAssignments
 
         private void frmSplash_Load(object sender, EventArgs e)
         {
-            lblProduct.Text = ProductName;
-
-            frm.FormClosed += new FormClosedEventHandler(frmClose);
+            try
+            {
+                lblProduct.Text = ProductName;
+                frm.FormClosed += new FormClosedEventHandler(frmClose);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"An error occurred: {ex.Message}");
+            }
         }
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            if (prgProgress.Value < 100)
+            try
             {
-                prgProgress.Increment(5);
+                if (prgProgress.Value < 100)
+                {
+                    prgProgress.Increment(5);
+                }
+                else
+                {
+                    timer1.Enabled = false;
+
+                    frmMDIParent frm = new();
+
+                    frm.Show();
+                    this.Hide();
+
+                    frm.FormClosed += new FormClosedEventHandler(frmClose);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                timer1.Enabled = false;
-
-                frmMDIParent frm = new();
-
-                frm.Show();
-                this.Hide();
-
-                frm.FormClosed += new FormClosedEventHandler(frmClose);
+                MessageBox.Show($"An error occurred: {ex.Message}");
             }
         }
 
         private void frmClose(object? sender, FormClosedEventArgs e)
         {
-            this.Close();
+            try
+            {
+                this.Close();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"An error occurred: {ex.Message}");
+            }
         }
     }
 }

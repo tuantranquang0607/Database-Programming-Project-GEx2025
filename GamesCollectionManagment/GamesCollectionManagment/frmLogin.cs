@@ -8,6 +8,7 @@ namespace GamesCollectionManagment
 
         public string LoggedInUserId { get; set; }
 
+
         public frmLogin()
         {
             InitializeComponent();
@@ -37,6 +38,7 @@ namespace GamesCollectionManagment
             {
                 errorProvider.SetError(txtUser, "Username is required.");
                 errorProvider.SetIconPadding(txtUser, -20);
+
                 hasError = true;
             }
 
@@ -73,9 +75,11 @@ namespace GamesCollectionManagment
                 }
 
                 string username = txtUser.Text.Trim();
+
                 string password = txtPassword.Text.Trim();
 
                 string sql = $"SELECT * FROM Users WHERE UserName = '{username}' AND Password = '{password}'";
+
                 DataTable dt = DataAccess.GetData(sql);
 
                 if (dt.Rows.Count > 0)
@@ -107,6 +111,7 @@ namespace GamesCollectionManagment
                 }
 
                 string username = txtUser.Text.Trim();
+
                 string password = txtPassword.Text.Trim();
 
                 string checkUserSql = $"SELECT COUNT(*) FROM Users WHERE UserName = '{username}'";
@@ -116,10 +121,12 @@ namespace GamesCollectionManagment
                 if (Convert.ToInt32(userExists.Rows[0][0]) > 0)
                 {
                     errorProvider.SetError(txtUser, "Username already exists. Please choose a different username.");
+
                     return;
                 }
 
                 string insertSql = $"INSERT INTO Users (UserName, Password) VALUES ('{username}', '{password}')";
+
                 DataAccess.ExecuteNonQuery(insertSql);
 
                 MessageBox.Show("Registration successful! You can now log in.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);

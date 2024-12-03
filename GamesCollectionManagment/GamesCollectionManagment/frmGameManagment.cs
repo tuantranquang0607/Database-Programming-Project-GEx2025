@@ -14,22 +14,17 @@ namespace GamesCollectionManagment
     {
         public string LoggedInUserId { get; set; }
 
+
         public frmGameManagment()
         {
             InitializeComponent();
         }
 
+
         private void frmGameManagment_Load(object sender, EventArgs e)
         {
             try
             {
-                //if (string.IsNullOrEmpty(LoggedInUserId))
-                //{
-                //    MessageBox.Show("User ID not found. Please log in again.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                //    this.Close();
-                //    return;
-                //}
-
                 LoadFirstGame();
             }
             catch (Exception ex)
@@ -38,11 +33,13 @@ namespace GamesCollectionManagment
             }
         }
 
+
         int currentGameId = 0;
         int firstGameId = 0;
         int lastGameId = 0;
         int? previousGameId;
         int? nextGameId;
+
 
         private void EnableSearchMode()
         {
@@ -53,6 +50,7 @@ namespace GamesCollectionManagment
             txtGamePublisher.ReadOnly = true;
             txtGameReleaseDate.ReadOnly = true;
         }
+
 
         private void EnableAddMode()
         {
@@ -69,6 +67,7 @@ namespace GamesCollectionManagment
             txtGamePlatforms.Clear();
         }
 
+
         private void ClearFields()
         {
             txtGameId.Clear();
@@ -78,6 +77,7 @@ namespace GamesCollectionManagment
             txtGameGenres.Clear();
             txtGamePlatforms.Clear();
         }
+
 
         private void ResetToReadOnlyMode()
         {
@@ -89,11 +89,13 @@ namespace GamesCollectionManagment
             txtGamePlatforms.ReadOnly = true;
         }
 
+
         private void NextPreviousButtonManagement()
         {
             btnPrevious.Enabled = previousGameId != null;
             btnNext.Enabled = nextGameId != null;
         }
+
 
         private void NavigationState(bool enableState)
         {
@@ -138,6 +140,7 @@ namespace GamesCollectionManagment
             }
         }
 
+
         private void LoadGameDetails()
         {
             try
@@ -149,20 +152,27 @@ namespace GamesCollectionManagment
                     $@"
                     SELECT 
                     (
-                        SELECT TOP(1) Id as FirstGameId FROM GameManagment ORDER BY GameTitle
-                    ) as FirstGameId,
+                        SELECT TOP(1) Id as FirstGameId 
+                        FROM GameManagment 
+                        ORDER BY GameTitle
+                    ) 
+                    as FirstGameId,
                     q.PreviousGameId,
                     q.NextGameId,
                     (
-                        SELECT TOP(1) Id as LastGameId FROM GameManagment ORDER BY GameTitle Desc
-                    ) as LastGameId
+                        SELECT TOP(1) Id as LastGameId 
+                        FROM GameManagment 
+                        ORDER BY GameTitle Desc
+                    ) 
+                    as LastGameId
                     FROM
                     (
                         SELECT Id, GameTitle,
                         LEAD(Id) OVER(ORDER BY GameTitle) AS NextGameId,
                         LAG(Id) OVER(ORDER BY GameTitle) AS PreviousGameId
                         FROM GameManagment
-                    ) AS q
+                    ) 
+                    AS q
                     WHERE q.Id = {currentGameId}
                     ORDER BY q.GameTitle"
                 };
@@ -196,6 +206,7 @@ namespace GamesCollectionManagment
             }
         }
 
+
         private void LoadFirstGame()
         {
             try
@@ -207,7 +218,9 @@ namespace GamesCollectionManagment
                     NavigationState(false);
 
                     btnAdd_Click(null, null);
+
                     btnCancel.Enabled = false;
+
                     return;
                 }
 
@@ -215,6 +228,7 @@ namespace GamesCollectionManagment
 
                 firstGameId = Convert.ToInt32(gameId);
                 currentGameId = firstGameId;
+
                 LoadGameDetails();
                 NextPreviousButtonManagement();
             }
@@ -223,6 +237,7 @@ namespace GamesCollectionManagment
                 MessageBox.Show($"Error loading first game: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
 
         private void SaveGameChanges()
         {
@@ -257,6 +272,7 @@ namespace GamesCollectionManagment
             }
         }
 
+
         private void btnAddToOwnedGames_Click(object sender, EventArgs e)
         {
             try
@@ -264,18 +280,14 @@ namespace GamesCollectionManagment
                 if (string.IsNullOrWhiteSpace(txtGameTitle.Text))
                 {
                     MessageBox.Show("Please select a game to add to Owned Games.", "No Game Selected", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
-                }
 
-                if (string.IsNullOrWhiteSpace(LoggedInUserId))
-                {
-                    MessageBox.Show("LoggedInUserId is null or empty.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
 
                 if (string.IsNullOrWhiteSpace(txtGameId.Text))
                 {
                     MessageBox.Show("Game ID is null or empty.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
                     return;
                 }
 
@@ -288,9 +300,11 @@ namespace GamesCollectionManagment
                     WHERE UserID = {userId} AND Id = {gameId}";
 
                 object result = DataAccess.GetValue(checkSql);
+
                 if (result == null)
                 {
                     MessageBox.Show("SQL query returned null.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
                     return;
                 }
 
@@ -299,6 +313,7 @@ namespace GamesCollectionManagment
                 if (existingRecordCount > 0)
                 {
                     MessageBox.Show("This game is already in your Owned Games.", "Duplicate Entry", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
                     return;
                 }
 
@@ -325,17 +340,20 @@ namespace GamesCollectionManagment
             }
         }
 
+
         private void btnAddToWishlist_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(txtGameId.Text))
             {
                 MessageBox.Show("Please select a game to add to the Wishlist.", "No Game Selected", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+
                 return;
             }
 
             if (string.IsNullOrWhiteSpace(LoggedInUserId))
             {
                 MessageBox.Show("LoggedInUserId is null or empty. Please log in again.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
                 return;
             }
 
@@ -348,16 +366,20 @@ namespace GamesCollectionManagment
                 WHERE UserID = {userId} AND Id = {gameId}";
 
             object result = DataAccess.GetValue(checkSql);
+
             if (result == null)
             {
                 MessageBox.Show("SQL query returned null.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
                 return;
             }
 
             int existingRecordCount = Convert.ToInt32(result);
+
             if (existingRecordCount > 0)
             {
                 MessageBox.Show("This game is already in your Wishlist.", "Duplicate Entry", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
                 return;
             }
 
@@ -379,34 +401,35 @@ namespace GamesCollectionManagment
             }
         }
 
+
         private void btnAdjust_Click(object sender, EventArgs e)
         {
             try
             {
-                txtGameTitle.ReadOnly = false;
-                txtGamePublisher.ReadOnly = false;
+                txtGameTitle.ReadOnly       = false;
+                txtGamePublisher.ReadOnly   = false;
                 txtGameReleaseDate.ReadOnly = false;
-                txtGameGenres.ReadOnly = false;
-                txtGamePlatforms.ReadOnly = false;
+                txtGameGenres.ReadOnly      = false;
+                txtGamePlatforms.ReadOnly   = false;
 
-                btnFirst.Enabled = false;
-                btnLast.Enabled = false;
-                btnPrevious.Enabled = false;
-                btnNext.Enabled = false;
-                btnAddToOwnedGames.Enabled = false;
-                btnAddToWishlist.Enabled = false;
-                btnSearch.Enabled = false;
-                btnAdd.Enabled = false;
-                btnDelete.Enabled = false;
+                btnFirst.Enabled            = false;
+                btnLast.Enabled             = false;
+                btnPrevious.Enabled         = false;
+                btnNext.Enabled             = false;
+                btnAddToOwnedGames.Enabled  = false;
+                btnAddToWishlist.Enabled    = false;
+                btnSearch.Enabled           = false;
+                btnAdd.Enabled              = false;
+                btnDelete.Enabled           = false;
 
                 if (btnSave.Text == "Save Adjustments")
                 {
-                    string gameId = txtGameId.Text.Trim();
-                    string gameTitle = txtGameTitle.Text.Trim();
-                    string gamePublisher = txtGamePublisher.Text.Trim();
-                    string gameReleaseDate = txtGameReleaseDate.Text.Trim();
-                    string gameGenres = txtGameGenres.Text.Trim();
-                    string gamePlatforms = txtGamePlatforms.Text.Trim();
+                    string gameId           = txtGameId.Text.Trim();
+                    string gameTitle        = txtGameTitle.Text.Trim();
+                    string gamePublisher    = txtGamePublisher.Text.Trim();
+                    string gameReleaseDate  = txtGameReleaseDate.Text.Trim();
+                    string gameGenres       = txtGameGenres.Text.Trim();
+                    string gamePlatforms    = txtGamePlatforms.Text.Trim();
 
                     string sql = $@"
                         UPDATE GameManagment
@@ -440,7 +463,9 @@ namespace GamesCollectionManagment
             }
         }
 
+
         private bool isInSearchMode = false;
+
 
         private void btnSearch_Click(object sender, EventArgs e)
         {
@@ -449,8 +474,10 @@ namespace GamesCollectionManagment
                 if (!isInSearchMode)
                 {
                     isInSearchMode = true;
+
                     EnableSearchMode();
                     ClearFields();
+
                     return;
                 }
 
@@ -459,10 +486,12 @@ namespace GamesCollectionManagment
                 if (string.IsNullOrWhiteSpace(searchTitle))
                 {
                     MessageBox.Show("Please enter a game title to search.", "Search Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+
                     return;
                 }
 
                 string sql = $"SELECT * FROM GameManagment WHERE GameTitle LIKE '%{searchTitle}%'";
+
                 DataTable dt = DataAccess.GetData(sql);
 
                 if (dt.Rows.Count > 0)
@@ -492,6 +521,7 @@ namespace GamesCollectionManagment
                     ClearFields();
                     ResetToReadOnlyMode();
                     NavigationState(true);
+
                     isInSearchMode = false;
                 }
             }
@@ -500,6 +530,7 @@ namespace GamesCollectionManagment
                 MessageBox.Show($"Error during search: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
 
         private void btnAdd_Click(object sender, EventArgs e)
         {
@@ -524,11 +555,13 @@ namespace GamesCollectionManagment
             }
         }
 
+
         private void CreateGame()
         {
             if (string.IsNullOrWhiteSpace(txtGameTitle.Text))
             {
                 MessageBox.Show("Game title is required.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+
                 return;
             }
 
@@ -567,6 +600,7 @@ namespace GamesCollectionManagment
             }
         }
 
+
         private void btnDelete_Click(object sender, EventArgs e)
         {
             try
@@ -580,6 +614,7 @@ namespace GamesCollectionManagment
             }
         }
 
+
         private void DeleteGame()
         {
             string sql = $@" DELETE FROM GameManagment WHERE Id = {currentGameId} ";
@@ -589,16 +624,19 @@ namespace GamesCollectionManagment
             if (rowsAffected == 1)
             {
                 MessageBox.Show($"Game with Id: {txtGameId.Text} was deleted");
+
                 LoadFirstGame();
                 ResetToReadOnlyMode();
             }
             else if (rowsAffected == 0)
             {
                 MessageBox.Show($"game with Id: {txtGameId.Text} does not exist. May already have been delete.");
+
                 LoadFirstGame();
                 ResetToReadOnlyMode();
             }
         }
+
 
         private void btnSave_Click(object sender, EventArgs e)
         {
@@ -623,6 +661,7 @@ namespace GamesCollectionManagment
                 MessageBox.Show(ex.Message, ex.GetType().ToString());
             }
         }
+
 
         private void btnCancel_Click(object sender, EventArgs e)
         {

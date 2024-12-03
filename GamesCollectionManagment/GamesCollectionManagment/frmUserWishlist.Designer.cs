@@ -232,7 +232,7 @@
             btnDelete.TabIndex = 71;
             btnDelete.Text = "Delete";
             btnDelete.UseVisualStyleBackColor = true;
-            btnDelete.Click += btnSearch_Click;
+            btnDelete.Click += btnDelete_Click;
             // 
             // btnNext
             // 

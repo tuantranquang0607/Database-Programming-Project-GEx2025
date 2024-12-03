@@ -11,18 +11,29 @@ namespace GamesCollectionManagment
             InitializeComponent();
         }
 
+
         public string LoggedInUserId { get; internal set; }
+
 
         private void frmUserWishlist_Load(object sender, EventArgs e)
         {
-            LoadFirstWishlistGame();
+            try
+            {
+                LoadFirstWishlistGame();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error loading wishlist: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
+
 
         int currentGameId = 0;
         int firstGameId = 0;
         int lastGameId = 0;
         int? previousGameId;
         int? nextGameId;
+
 
         private void EnableSearchMode()
         {
@@ -34,6 +45,7 @@ namespace GamesCollectionManagment
             txtGameReleaseDate.ReadOnly = true;
         }
 
+
         private void ResetToReadOnlyMode()
         {
             txtGameId.ReadOnly = true;
@@ -44,11 +56,13 @@ namespace GamesCollectionManagment
             txtGamePlatforms.ReadOnly = true;
         }
 
+
         private void NextPreviousButtonManagement()
         {
             btnPrevious.Enabled = previousGameId != null;
             btnNext.Enabled = nextGameId != null;
         }
+
 
         private void NavigationState(bool enableState)
         {
@@ -57,6 +71,7 @@ namespace GamesCollectionManagment
             btnNext.Enabled = enableState;
             btnPrevious.Enabled = enableState;
         }
+
 
         private void Navigation_Handler(object sender, EventArgs e)
         {
@@ -92,13 +107,13 @@ namespace GamesCollectionManagment
             }
         }
 
+
         private void LoadWishlistGameDetails()
         {
             try
             {
                 string sql = $@"
-                    SELECT g.Id, g.GameTitle, g.GamePublisher, g.GameReleaseDate, 
-                           g.GameGenres, g.GamePlatforms
+                    SELECT g.Id, g.GameTitle, g.GamePublisher, g.GameReleaseDate, g.GameGenres, g.GamePlatforms
                     FROM UserWishlist uw
                     INNER JOIN GameManagment g ON uw.Id = g.Id
                     WHERE uw.UserID = {LoggedInUserId} AND g.Id = {currentGameId}";
@@ -127,13 +142,13 @@ namespace GamesCollectionManagment
             }
         }
 
+
         private void LoadFirstWishlistGame()
         {
             try
             {
                 string sql = $@"
-                    SELECT g.Id, g.GameTitle, g.GamePublisher, g.GameReleaseDate, 
-                           g.GameGenres, g.GamePlatforms
+                    SELECT g.Id, g.GameTitle, g.GamePublisher, g.GameReleaseDate, g.GameGenres, g.GamePlatforms
                     FROM UserWishlist uw
                     INNER JOIN GameManagment g ON uw.Id = g.Id
                     WHERE uw.UserID = {LoggedInUserId}";
@@ -164,6 +179,7 @@ namespace GamesCollectionManagment
                 MessageBox.Show($"Error loading first wishlist game: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
 
         private void btnDelete_Click(object sender, EventArgs e)
         {
@@ -199,6 +215,7 @@ namespace GamesCollectionManagment
             }
         }
 
+
         private void btnCancel_Click(object sender, EventArgs e)
         {
             try
@@ -217,6 +234,7 @@ namespace GamesCollectionManagment
                 MessageBox.Show(ex.Message, ex.GetType().ToString());
             }
         }
+
 
         private void btnSearch_Click(object sender, EventArgs e)
         {
