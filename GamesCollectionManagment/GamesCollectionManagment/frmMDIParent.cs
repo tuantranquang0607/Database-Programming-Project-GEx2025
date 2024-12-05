@@ -21,14 +21,6 @@ namespace GamesCollectionManagment
             InitializeComponent();
         }
 
-        private void CloseAllToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            foreach (Form childForm in MdiChildren)
-            {
-                childForm.Close();
-            }
-        }
-
         private void frmMDIParent_Load(object sender, EventArgs e)
         {
             frmLogin loginForm = new frmLogin
@@ -44,7 +36,7 @@ namespace GamesCollectionManagment
             }
             else if (result == DialogResult.OK)
             {
-                LoggedInUsername = LoggedInUsername;
+                LoggedInUsername = loginForm.LoggedInUsername;
                 LoggedInUserId = loginForm.LoggedInUserId;
 
                 toolStripStatusLabel.Text = $"Logged in as: {LoggedInUsername}";
@@ -55,13 +47,22 @@ namespace GamesCollectionManagment
         {
             try
             {
-                frmUserOwnedGames userOwnedGamesForm = new frmUserOwnedGames
-                {
-                    LoggedInUserId = this.LoggedInUserId,
-                    StartPosition = FormStartPosition.CenterScreen
-                };
+                Form existingForm = Application.OpenForms.Cast<Form>().FirstOrDefault(f => f is frmUserOwnedGames);
 
-                userOwnedGamesForm.Show();
+                if (existingForm != null)
+                {
+                    existingForm.BringToFront();
+                }
+                else
+                {
+                    frmUserOwnedGames userOwnedGamesForm = new frmUserOwnedGames
+                    {
+                        LoggedInUserId = this.LoggedInUserId,
+                        StartPosition = FormStartPosition.CenterScreen
+                    };
+
+                    userOwnedGamesForm.Show();
+                }
             }
             catch (Exception ex)
             {
@@ -73,13 +74,22 @@ namespace GamesCollectionManagment
         {
             try
             {
-                frmUserWishlist userWishlistForm = new frmUserWishlist();
-                {
-                    LoggedInUserId = this.LoggedInUserId;
-                    StartPosition = FormStartPosition.CenterScreen;
-                }
+                Form existingForm = Application.OpenForms.Cast<Form>().FirstOrDefault(f => f is frmUserWishlist);
 
-                userWishlistForm.Show();
+                if (existingForm != null)
+                {
+                    existingForm.BringToFront();
+                }
+                else
+                {
+                    frmUserWishlist userWishlistForm = new frmUserWishlist
+                    {
+                        LoggedInUserId = this.LoggedInUserId,
+                        StartPosition = FormStartPosition.CenterScreen
+                    };
+
+                    userWishlistForm.Show();
+                }
             }
             catch (Exception ex)
             {
@@ -91,13 +101,22 @@ namespace GamesCollectionManagment
         {
             try
             {
-                frmGameManagment gameManagmentForm = new frmGameManagment();
-                {
-                    LoggedInUserId = this.LoggedInUserId;
-                    StartPosition = FormStartPosition.CenterScreen;
-                }
+                Form existingForm = Application.OpenForms.Cast<Form>().FirstOrDefault(f => f is frmGameManagment);
 
-                gameManagmentForm.Show();
+                if (existingForm != null)
+                {
+                    existingForm.BringToFront();
+                }
+                else
+                {
+                    frmGameManagment gameManagmentForm = new frmGameManagment
+                    {
+                        LoggedInUserId = this.LoggedInUserId,
+                        StartPosition = FormStartPosition.CenterScreen
+                    };
+
+                    gameManagmentForm.Show();
+                }
             }
             catch (Exception ex)
             {
@@ -109,6 +128,11 @@ namespace GamesCollectionManagment
         {
             try
             {
+                foreach (Form childForm in MdiChildren)
+                {
+                    childForm.Close();
+                }
+
                 LoggedInUsername = null;
                 toolStripStatusLabel.Text = "Logged out";
 

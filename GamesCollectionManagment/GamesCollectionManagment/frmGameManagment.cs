@@ -569,7 +569,12 @@ namespace GamesCollectionManagment
             string publisher = txtGamePublisher.Text.Trim();
             string releaseDate = txtGameReleaseDate.Text.Trim();
             string genres = txtGameGenres.Text.Trim();
-            string platforms = txtGamePlatforms.Text.Trim();
+            string[] platforms = txtGamePlatforms.Text.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            if (platforms.Length > 5)
+            {
+                MessageBox.Show("A game can't have more than 5 platforms.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
 
             string sqlInsertGame = $@"
                 INSERT INTO GameManagment 
@@ -644,6 +649,14 @@ namespace GamesCollectionManagment
             {
                 if (ValidateChildren(ValidationConstraints.Enabled))
                 {
+                    string[] platforms = txtGamePlatforms.Text.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+
+                    if (platforms.Length > 5)
+                    {
+                        MessageBox.Show("A game can't have more than 5 platforms.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+
                     if (string.IsNullOrEmpty(txtGameId.Text))
                     {
                         CreateGame();
