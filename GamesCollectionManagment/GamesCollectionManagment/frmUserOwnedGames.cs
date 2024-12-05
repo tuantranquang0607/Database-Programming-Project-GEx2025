@@ -12,21 +12,34 @@ namespace GamesCollectionManagment
 {
     public partial class frmUserOwnedGames : Form
     {
+        public string LoggedInUserId { get; internal set; }
+
+
         public frmUserOwnedGames()
         {
             InitializeComponent();
         }
 
+
         private void frmUserOwnedGames_Load(object sender, EventArgs e)
         {
-            LoadFirstGame();
+            try
+            {
+                LoadFirstGame();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error loading first game: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
+
 
         int currentGameId = 0;
         int firstGameId = 0;
         int lastGameId = 0;
         int? previousGameId;
         int? nextGameId;
+
 
         private void EnableSearchMode()
         {
@@ -38,7 +51,6 @@ namespace GamesCollectionManagment
             txtGameReleaseDate.ReadOnly = true;
         }
 
-        public string LoggedInUserId { get; internal set; }
 
         private void ResetToReadOnlyMode()
         {
@@ -50,11 +62,15 @@ namespace GamesCollectionManagment
             txtGamePlatforms.ReadOnly = true;
         }
 
+
         private void NextPreviousButtonManagement()
         {
             btnPrevious.Enabled = previousGameId != null;
             btnNext.Enabled = nextGameId != null;
+            btnFirst.Enabled = currentGameId != firstGameId;
+            btnLast.Enabled = currentGameId != lastGameId;
         }
+
 
         private void NavigationState(bool enableState)
         {
@@ -64,10 +80,54 @@ namespace GamesCollectionManagment
             btnPrevious.Enabled = enableState;
         }
 
+
+        private void SetNavigationIds(int currentId, DataTable dt)
+        {
+            var rows = dt.AsEnumerable().Select(row => Convert.ToInt32(row["Id"])).ToList();
+            int currentIndex = rows.IndexOf(currentId);
+
+            previousGameId = currentIndex > 0 ? rows[currentIndex - 1] : (int?)null;
+            nextGameId = currentIndex < rows.Count - 1 ? rows[currentIndex + 1] : (int?)null;
+
+            firstGameId = rows.First();
+            lastGameId = rows.Last();
+        }
+
+
+        private bool isSearchMode = false;
+
+
+        private void ExitSearchMode()
+        {
+            isSearchMode = false;
+            btnSearch.Enabled = true;
+
+            ResetToReadOnlyMode();
+            LoadFirstGame();  
+            NavigationState(true); 
+        }
+
+
+        private void ClearTextFields()
+        {
+            txtGameId.Clear();
+            txtGameTitle.Clear();
+            txtGamePublisher.Clear();
+            txtGameReleaseDate.Clear();
+            txtGameGenres.Clear();
+            txtGamePlatforms.Clear();
+        }
+
+
         private void Navigation_Handler(object sender, EventArgs e)
         {
             try
             {
+                if (isSearchMode)
+                {
+                    ExitSearchMode();
+                }
+
                 Button b = (Button)sender;
 
                 switch (b.Name)
@@ -106,31 +166,35 @@ namespace GamesCollectionManagment
                     SELECT g.Id, g.GameTitle, g.GamePublisher, g.GameReleaseDate, g.GameGenres, g.GamePlatforms
                     FROM UserOwnedGame uog
                     INNER JOIN GameManagment g ON uog.Id = g.Id
-                    WHERE uog.UserID = {LoggedInUserId}";
+                    WHERE uog.UserID = {LoggedInUserId}
+                    ORDER BY g.GameTitle";
 
                 DataTable dt = DataAccess.GetData(sql);
 
                 if (dt.Rows.Count > 0)
                 {
-                    DataRow firstGame = dt.Rows[0];
+                    DataRow game = dt.AsEnumerable().FirstOrDefault(row => Convert.ToInt32(row["Id"]) == currentGameId);
 
-                    txtGameId.Text = firstGame["Id"].ToString();
-                    txtGameTitle.Text = firstGame["GameTitle"].ToString();
-                    txtGamePublisher.Text = firstGame["GamePublisher"].ToString();
-                    txtGameReleaseDate.Text = firstGame["GameReleaseDate"] != DBNull.Value ? Convert.ToDateTime(firstGame["GameReleaseDate"]).ToString("yyyy-MM-dd") : string.Empty;
-                    txtGameGenres.Text = firstGame["GameGenres"].ToString();
-                    txtGamePlatforms.Text = firstGame["GamePlatforms"].ToString();
+                    if (game != null)
+                    {
+                        txtGameId.Text = game["Id"].ToString();
+                        txtGameTitle.Text = game["GameTitle"].ToString();
+                        txtGamePublisher.Text = game["GamePublisher"].ToString();
+                        txtGameReleaseDate.Text = game["GameReleaseDate"] != DBNull.Value ? Convert.ToDateTime(game["GameReleaseDate"]).ToString("yyyy-MM-dd") : string.Empty;
+                        txtGameGenres.Text = game["GameGenres"].ToString();
+                        txtGamePlatforms.Text = game["GamePlatforms"].ToString();
 
-                    currentGameId = Convert.ToInt32(firstGame["Id"]);
+                        SetNavigationIds(currentGameId, dt);
+                    }
                 }
                 else
                 {
-                    MessageBox.Show("No owned games found.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show("No games found for this user.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error loading owned games: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Error loading game details: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -142,7 +206,8 @@ namespace GamesCollectionManagment
                     SELECT g.Id, g.GameTitle, g.GamePublisher, g.GameReleaseDate, g.GameGenres, g.GamePlatforms
                     FROM UserOwnedGame uog
                     INNER JOIN GameManagment g ON uog.Id = g.Id
-                    WHERE uog.UserID = {LoggedInUserId} AND g.Id = {currentGameId}";
+                    WHERE uog.UserID = {LoggedInUserId}
+                    ORDER BY g.GameTitle";
 
                 DataTable dt = DataAccess.GetData(sql);
 
@@ -157,16 +222,22 @@ namespace GamesCollectionManagment
                     txtGameGenres.Text = game["GameGenres"].ToString();
                     txtGamePlatforms.Text = game["GamePlatforms"].ToString();
 
+                    currentGameId = Convert.ToInt32(game["Id"]);
+
+                    firstGameId = Convert.ToInt32(dt.Rows[0]["Id"]);
+                    lastGameId = Convert.ToInt32(dt.Rows[dt.Rows.Count - 1]["Id"]);
+
+                    SetNavigationIds(currentGameId, dt);
                     NextPreviousButtonManagement();
                 }
                 else
                 {
-                    MessageBox.Show("Game not found.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("No games found for this user.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error loading game details: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Error loading first game: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -204,11 +275,13 @@ namespace GamesCollectionManagment
             }
         }
 
+
         private void btnCancel_Click(object sender, EventArgs e)
         {
             try
             {
                 LoadGameDetails();
+                ExitSearchMode();
 
                 btnDelete.Enabled = true;
                 btnSearch.Enabled = true;
@@ -223,11 +296,15 @@ namespace GamesCollectionManagment
             }
         }
 
+
         private void btnSearch_Click(object sender, EventArgs e)
         {
             try
             {
+                isSearchMode = true;
+
                 EnableSearchMode();
+                ClearTextFields();
 
                 string searchTitle = txtGameTitle.Text.Trim();
 

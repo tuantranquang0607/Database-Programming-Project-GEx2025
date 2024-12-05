@@ -73,10 +73,53 @@ namespace GamesCollectionManagment
         }
 
 
+        private void SetNavigationIds(int currentId, DataTable dt)
+        {
+            var rows = dt.AsEnumerable().Select(row => Convert.ToInt32(row["Id"])).ToList();
+            int currentIndex = rows.IndexOf(currentId);
+
+            previousGameId = currentIndex > 0 ? rows[currentIndex - 1] : (int?)null;
+            nextGameId = currentIndex < rows.Count - 1 ? rows[currentIndex + 1] : (int?)null;
+
+            firstGameId = rows.First();
+            lastGameId = rows.Last();
+        }
+
+
+        private bool isSearchMode = false;
+
+
+        private void ExitSearchMode()
+        {
+            isSearchMode = false;
+            btnSearch.Enabled = true;
+
+            ResetToReadOnlyMode();
+            LoadFirstWishlistGame(); 
+            NavigationState(true); 
+        }
+
+
+        private void ClearTextFields()
+        {
+            txtGameId.Clear();
+            txtGameTitle.Clear();
+            txtGamePublisher.Clear();
+            txtGameReleaseDate.Clear();
+            txtGameGenres.Clear();
+            txtGamePlatforms.Clear();
+        }
+
+
         private void Navigation_Handler(object sender, EventArgs e)
         {
             try
             {
+                if (isSearchMode)
+                {
+                    ExitSearchMode(); 
+                }
+
                 Button b = (Button)sender;
 
                 switch (b.Name)
@@ -113,23 +156,30 @@ namespace GamesCollectionManagment
             try
             {
                 string sql = $@"
-                    SELECT g.Id, g.GameTitle, g.GamePublisher, g.GameReleaseDate, g.GameGenres, g.GamePlatforms
-                    FROM UserWishlist uw
-                    INNER JOIN GameManagment g ON uw.Id = g.Id
-                    WHERE uw.UserID = {LoggedInUserId} AND g.Id = {currentGameId}";
+                SELECT g.Id, g.GameTitle, g.GamePublisher, g.GameReleaseDate, g.GameGenres, g.GamePlatforms
+                FROM UserWishlist uw
+                INNER JOIN GameManagment g ON uw.Id = g.Id
+                WHERE uw.UserID = {LoggedInUserId}
+                ORDER BY g.GameTitle";
 
                 DataTable dt = DataAccess.GetData(sql);
 
                 if (dt.Rows.Count > 0)
                 {
-                    DataRow game = dt.Rows[0];
+                    DataRow game = dt.AsEnumerable().FirstOrDefault(row => Convert.ToInt32(row["Id"]) == currentGameId);
 
-                    txtGameId.Text = game["Id"].ToString();
-                    txtGameTitle.Text = game["GameTitle"].ToString();
-                    txtGamePublisher.Text = game["GamePublisher"].ToString();
-                    txtGameReleaseDate.Text = game["GameReleaseDate"] != DBNull.Value ? Convert.ToDateTime(game["GameReleaseDate"]).ToString("yyyy-MM-dd") : string.Empty;
-                    txtGameGenres.Text = game["GameGenres"].ToString();
-                    txtGamePlatforms.Text = game["GamePlatforms"].ToString();
+                    if (game != null)
+                    {
+                        txtGameId.Text = game["Id"].ToString();
+                        txtGameTitle.Text = game["GameTitle"].ToString();
+                        txtGamePublisher.Text = game["GamePublisher"].ToString();
+                        txtGameReleaseDate.Text = game["GameReleaseDate"] != DBNull.Value ? Convert.ToDateTime(game["GameReleaseDate"]).ToString("yyyy-MM-dd") : string.Empty;
+                        txtGameGenres.Text = game["GameGenres"].ToString();
+                        txtGamePlatforms.Text = game["GamePlatforms"].ToString();
+
+                        SetNavigationIds(currentGameId, dt);
+                        NextPreviousButtonManagement();
+                    }
                 }
                 else
                 {
@@ -151,7 +201,8 @@ namespace GamesCollectionManagment
                     SELECT g.Id, g.GameTitle, g.GamePublisher, g.GameReleaseDate, g.GameGenres, g.GamePlatforms
                     FROM UserWishlist uw
                     INNER JOIN GameManagment g ON uw.Id = g.Id
-                    WHERE uw.UserID = {LoggedInUserId}";
+                    WHERE uw.UserID = {LoggedInUserId}
+                    ORDER BY g.GameTitle";
 
                 DataTable dt = DataAccess.GetData(sql);
 
@@ -167,7 +218,12 @@ namespace GamesCollectionManagment
                     txtGamePlatforms.Text = firstGame["GamePlatforms"].ToString();
 
                     currentGameId = Convert.ToInt32(firstGame["Id"]);
-                    firstGameId = currentGameId;
+
+                    firstGameId = Convert.ToInt32(dt.Rows[0]["Id"]);
+                    lastGameId = Convert.ToInt32(dt.Rows[dt.Rows.Count - 1]["Id"]);
+
+                    SetNavigationIds(currentGameId, dt);
+                    NextPreviousButtonManagement();
                 }
                 else
                 {
@@ -221,6 +277,7 @@ namespace GamesCollectionManagment
             try
             {
                 LoadWishlistGameDetails();
+                ExitSearchMode();
 
                 btnDelete.Enabled = true;
                 btnSearch.Enabled = true;
@@ -240,7 +297,10 @@ namespace GamesCollectionManagment
         {
             try
             {
+                isSearchMode = true;
+
                 EnableSearchMode();
+                ClearTextFields();
 
                 string searchTitle = txtGameTitle.Text.Trim();
 
@@ -268,6 +328,10 @@ namespace GamesCollectionManagment
                     txtGameReleaseDate.Text = game["GameReleaseDate"] != DBNull.Value ? Convert.ToDateTime(game["GameReleaseDate"]).ToString("yyyy-MM-dd") : string.Empty;
                     txtGameGenres.Text = game["GameGenres"].ToString();
                     txtGamePlatforms.Text = game["GamePlatforms"].ToString();
+
+                    currentGameId = Convert.ToInt32(game["Id"]);
+
+                    SetNavigationIds(currentGameId, dt);
                 }
                 else
                 {

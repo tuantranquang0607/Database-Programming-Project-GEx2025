@@ -51,7 +51,7 @@
             // 
             toolStripStatusLabel.Name = "toolStripStatusLabel";
             toolStripStatusLabel.RightToLeft = RightToLeft.No;
-            toolStripStatusLabel.Size = new Size(262, 17);
+            toolStripStatusLabel.Size = new Size(293, 17);
             toolStripStatusLabel.Spring = true;
             toolStripStatusLabel.Text = "toolStripStatusLabel";
             toolStripStatusLabel.TextAlign = ContentAlignment.BottomCenter;
@@ -108,6 +108,7 @@
             Controls.Add(btnUserOwnedGames);
             IsMdiContainer = true;
             Name = "frmMDIParent";
+            StartPosition = FormStartPosition.CenterScreen;
             Text = "Menu";
             Load += frmMDIParent_Load;
             statusStrip1.ResumeLayout(false);

@@ -44,7 +44,6 @@ namespace GamesCollectionManagment
         private void EnableSearchMode()
         {
             txtGameTitle.ReadOnly = false;
-
             txtGameGenres.ReadOnly = true;
             txtGamePlatforms.ReadOnly = true;
             txtGamePublisher.ReadOnly = true;
@@ -106,10 +105,26 @@ namespace GamesCollectionManagment
         }
 
 
+        private bool isInSearchMode = false;
+
+
+        private void DisableSearchMode()
+        {
+            if (isInSearchMode)
+            {
+                isInSearchMode = false;
+                ResetToReadOnlyMode();
+                ClearFields();
+            }
+        }
+
+
         private void Navigation_Handler(object sender, EventArgs e)
         {
             try
             {
+                DisableSearchMode();
+
                 Button b = (Button)sender;
 
                 switch (b.Name)
@@ -277,43 +292,62 @@ namespace GamesCollectionManagment
         {
             try
             {
+                DisableSearchMode();
+
                 if (string.IsNullOrWhiteSpace(txtGameTitle.Text))
                 {
                     MessageBox.Show("Please select a game to add to Owned Games.", "No Game Selected", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-
                     return;
                 }
 
                 if (string.IsNullOrWhiteSpace(txtGameId.Text))
                 {
                     MessageBox.Show("Game ID is null or empty.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-
                     return;
                 }
 
                 int userId = int.Parse(LoggedInUserId);
                 int gameId = int.Parse(txtGameId.Text.Trim());
 
-                string checkSql = $@"
+                string wishlistCheckSql = $@"
+                    SELECT COUNT(*)
+                    FROM UserWishlist
+                    WHERE UserID = {userId} AND Id = {gameId}";
+
+                object wishlistResult = DataAccess.GetValue(wishlistCheckSql);
+
+                if (wishlistResult == null)
+                {
+                    MessageBox.Show("SQL query returned null.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                int wishlistRecordCount = Convert.ToInt32(wishlistResult);
+
+                if (wishlistRecordCount > 0)
+                {
+                    MessageBox.Show("This game is already in your Wishlist. You cannot add it to your Owned Games.", "Duplicate Entry", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                string ownedCheckSql = $@"
                     SELECT COUNT(*) 
                     FROM UserOwnedGame 
                     WHERE UserID = {userId} AND Id = {gameId}";
 
-                object result = DataAccess.GetValue(checkSql);
+                object ownedResult = DataAccess.GetValue(ownedCheckSql);
 
-                if (result == null)
+                if (ownedResult == null)
                 {
                     MessageBox.Show("SQL query returned null.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-
                     return;
                 }
 
-                int existingRecordCount = Convert.ToInt32(result);
+                int existingOwnedRecordCount = Convert.ToInt32(ownedResult);
 
-                if (existingRecordCount > 0)
+                if (existingOwnedRecordCount > 0)
                 {
                     MessageBox.Show("This game is already in your Owned Games.", "Duplicate Entry", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
                     return;
                 }
 
@@ -326,8 +360,7 @@ namespace GamesCollectionManagment
                 if (rowsAffected > 0)
                 {
                     MessageBox.Show("Game successfully added to your Owned Games.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-                    btnAddToOwnedGames.Enabled = false;
+                    btnAddToOwnedGames.Enabled = true;
                 }
                 else
                 {
@@ -343,61 +376,107 @@ namespace GamesCollectionManagment
 
         private void btnAddToWishlist_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(txtGameId.Text))
+            try
             {
-                MessageBox.Show("Please select a game to add to the Wishlist.", "No Game Selected", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                DisableSearchMode();
 
-                return;
+                if (string.IsNullOrWhiteSpace(txtGameId.Text))
+                {
+                    MessageBox.Show("Please select a game to add to the Wishlist.", "No Game Selected", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                if (string.IsNullOrWhiteSpace(LoggedInUserId))
+                {
+                    MessageBox.Show("LoggedInUserId is null or empty. Please log in again.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                int gameId = int.Parse(txtGameId.Text.Trim());
+                int userId = int.Parse(LoggedInUserId);
+
+                string ownedCheckSql = $@"
+                    SELECT COUNT(*)
+                    FROM UserOwnedGame
+                    WHERE UserID = {userId} AND Id = {gameId}";
+
+                object ownedResult = DataAccess.GetValue(ownedCheckSql);
+
+                if (ownedResult == null)
+                {
+                    MessageBox.Show("SQL query returned null.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                int ownedRecordCount = Convert.ToInt32(ownedResult);
+
+                if (ownedRecordCount > 0)
+                {
+                    MessageBox.Show("This game is already in your Owned Games. You cannot add it to your Wishlist.", "Duplicate Entry", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                string wishlistCountSql = $@"
+                    SELECT COUNT(*)
+                    FROM UserWishlist
+                    WHERE UserID = {userId}";
+
+                object wishlistCountResult = DataAccess.GetValue(wishlistCountSql);
+
+                if (wishlistCountResult == null)
+                {
+                    MessageBox.Show("SQL query returned null.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                int wishlistCount = Convert.ToInt32(wishlistCountResult);
+
+                if (wishlistCount >= 10)
+                {
+                    MessageBox.Show("You cannot add more than 10 games to your Wishlist.", "Limit Reached", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                string wishlistCheckSql = $@"
+                    SELECT COUNT(*)
+                    FROM UserWishlist
+                    WHERE UserID = {userId} AND Id = {gameId}";
+
+                object wishlistResult = DataAccess.GetValue(wishlistCheckSql);
+
+                if (wishlistResult == null)
+                {
+                    MessageBox.Show("SQL query returned null.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                int existingWishlistRecordCount = Convert.ToInt32(wishlistResult);
+
+                if (existingWishlistRecordCount > 0)
+                {
+                    MessageBox.Show("This game is already in your Wishlist.", "Duplicate Entry", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+
+                string insertSql = $@"
+                    INSERT INTO UserWishlist (UserID, Id)
+                    VALUES ({userId}, {gameId})";
+
+                int rowsAffected = DataAccess.ExecuteNonQuery(insertSql);
+
+                if (rowsAffected > 0)
+                {
+                    MessageBox.Show("Game successfully added to your Wishlist.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    btnAddToWishlist.Enabled = true;
+                }
+                else
+                {
+                    MessageBox.Show("Failed to add the game to your Wishlist.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
             }
-
-            if (string.IsNullOrWhiteSpace(LoggedInUserId))
+            catch (Exception ex)
             {
-                MessageBox.Show("LoggedInUserId is null or empty. Please log in again.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-
-                return;
-            }
-
-            int gameId = int.Parse(txtGameId.Text.Trim());
-            int userId = int.Parse(LoggedInUserId);
-
-            string checkSql = $@"
-                SELECT COUNT(*)
-                FROM UserWishlist
-                WHERE UserID = {userId} AND Id = {gameId}";
-
-            object result = DataAccess.GetValue(checkSql);
-
-            if (result == null)
-            {
-                MessageBox.Show("SQL query returned null.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-
-                return;
-            }
-
-            int existingRecordCount = Convert.ToInt32(result);
-
-            if (existingRecordCount > 0)
-            {
-                MessageBox.Show("This game is already in your Wishlist.", "Duplicate Entry", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-                return;
-            }
-
-            string insertSql = $@"
-                INSERT INTO UserWishlist (UserID, Id)
-                VALUES ({userId}, {gameId})";
-
-            int rowsAffected = DataAccess.ExecuteNonQuery(insertSql);
-
-            if (rowsAffected > 0)
-            {
-                MessageBox.Show("Game successfully added to your Wishlist.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-                btnAddToWishlist.Enabled = false;
-            }
-            else
-            {
-                MessageBox.Show("Failed to add the game to your Wishlist.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show($"Error adding game to Wishlist: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -406,6 +485,8 @@ namespace GamesCollectionManagment
         {
             try
             {
+                DisableSearchMode();
+
                 txtGameTitle.ReadOnly       = false;
                 txtGamePublisher.ReadOnly   = false;
                 txtGameReleaseDate.ReadOnly = false;
@@ -462,9 +543,6 @@ namespace GamesCollectionManagment
                 MessageBox.Show($"Error saving game information: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
-
-        private bool isInSearchMode = false;
 
 
         private void btnSearch_Click(object sender, EventArgs e)
@@ -536,6 +614,8 @@ namespace GamesCollectionManagment
         {
             try
             {
+                DisableSearchMode();
+
                 UIUtilities.ClearControls(this.Controls);
 
                 EnableAddMode();
@@ -570,6 +650,7 @@ namespace GamesCollectionManagment
             string releaseDate = txtGameReleaseDate.Text.Trim();
             string genres = txtGameGenres.Text.Trim();
             string[] platforms = txtGamePlatforms.Text.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+
             if (platforms.Length > 5)
             {
                 MessageBox.Show("A game can't have more than 5 platforms.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);

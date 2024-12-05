@@ -71,27 +71,40 @@ namespace GamesCollectionManagment
             {
                 if (!ValidateInputs())
                 {
-                    return; 
+                    return;
                 }
 
                 string username = txtUser.Text.Trim();
-
                 string password = txtPassword.Text.Trim();
 
-                string sql = $"SELECT * FROM Users WHERE UserName = '{username}' AND Password = '{password}'";
+                string usernameCheckSql = $"SELECT COUNT(*) FROM Users WHERE UserName = '{username}'";
+                object usernameExists = DataAccess.GetValue(usernameCheckSql);
 
-                DataTable dt = DataAccess.GetData(sql);
+                if (Convert.ToInt32(usernameExists) == 0)
+                {
+                    errorProvider.SetError(txtUser, "Invalid username.");
+                    errorProvider.SetIconPadding(txtUser, -20);
+                    return;
+                }
+
+                string passwordCheckSql = $"SELECT COUNT(*) FROM Users WHERE UserName = '{username}' AND Password = '{password}'";
+                object passwordMatch = DataAccess.GetValue(passwordCheckSql);
+
+                if (Convert.ToInt32(passwordMatch) == 0)
+                {
+                    errorProvider.SetError(txtPassword, "Invalid password.");
+                    errorProvider.SetIconPadding(txtPassword, -20);
+                    return;
+                }
+
+                string loginSql = $"SELECT * FROM Users WHERE UserName = '{username}' AND Password = '{password}'";
+                DataTable dt = DataAccess.GetData(loginSql);
 
                 if (dt.Rows.Count > 0)
                 {
                     LoggedInUserId = dt.Rows[0]["UserID"].ToString();
-                    LoggedInUsername = username; 
+                    LoggedInUsername = username;
                     DialogResult = DialogResult.OK; 
-                }
-                else
-                {
-                    errorProvider.SetError(txtUser, "Invalid username or password.");
-                    errorProvider.SetError(txtPassword, "Invalid username or password.");
                 }
             }
             catch (Exception ex)

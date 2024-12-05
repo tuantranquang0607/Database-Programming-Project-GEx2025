@@ -21,6 +21,7 @@ namespace GamesCollectionManagment
             InitializeComponent();
         }
 
+
         private void frmMDIParent_Load(object sender, EventArgs e)
         {
             frmLogin loginForm = new frmLogin
@@ -42,6 +43,7 @@ namespace GamesCollectionManagment
                 toolStripStatusLabel.Text = $"Logged in as: {LoggedInUsername}";
             }
         }
+
 
         private void btnUserOwnedGames_Click(object sender, EventArgs e)
         {
@@ -70,6 +72,7 @@ namespace GamesCollectionManagment
             }
         }
 
+
         private void btnUserWishlist_Click(object sender, EventArgs e)
         {
             try
@@ -96,6 +99,7 @@ namespace GamesCollectionManagment
                 MessageBox.Show($"Error opening the User Owned Games form: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
 
         private void btnGameManagment_Click(object sender, EventArgs e)
         {
@@ -124,6 +128,7 @@ namespace GamesCollectionManagment
             }
         }
 
+
         private void btnLogin_Click(object sender, EventArgs e)
         {
             try
@@ -132,9 +137,6 @@ namespace GamesCollectionManagment
                 {
                     childForm.Close();
                 }
-
-                LoggedInUsername = null;
-                toolStripStatusLabel.Text = "Logged out";
 
                 this.Hide();
 
@@ -149,6 +151,8 @@ namespace GamesCollectionManagment
                 {
                     LoggedInUsername = logInForm.LoggedInUsername;
                     LoggedInUserId = logInForm.LoggedInUserId;
+
+                    toolStripStatusLabel.Text = $"Logged in as: {LoggedInUsername}";
 
                     this.Show();
                 }
