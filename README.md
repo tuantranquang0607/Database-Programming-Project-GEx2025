@@ -3,12 +3,6 @@
 I made this project to showcase what I learned in the database programming course.<br><br>
 
 
-TinyXML2: https://github.com/leethomason/tinyxml2 <br>
-Microsoft Learn reference: https://learn.microsoft.com/en-us/ <br>
-C++ reference: https://en.cppreference.com/w/ <br>
-ASCII art/words: https://patorjk.com/
-
-
 # 💫 About Me:
 I am an international student in Canada, majoring in Game Development. Besides, I dabble in Web Development and digital art. Feel free to contact me for work or anything else.<br>
 My portfolio: https://tuantranquang0607.github.io/Tuan_Q._Tran-Official/<br><br>
