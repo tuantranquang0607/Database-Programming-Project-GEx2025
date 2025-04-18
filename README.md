@@ -1,4 +1,4 @@
-# Text-Based-RPG-Game
+# Simple Window Form Video Game Management Application
 
 I made this project to showcase what I learned in the database programming course using C# and ADO.NET.<br><br>
 
