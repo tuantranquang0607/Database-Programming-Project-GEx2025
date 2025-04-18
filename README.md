@@ -1,6 +1,6 @@
 # Text-Based-RPG-Game
 
-I made this project to showcase what I learned in the database programming course.<br><br>
+I made this project to showcase what I learned in the database programming course using C# and ADO.NET.<br><br>
 
 
 # 💫 About Me:
